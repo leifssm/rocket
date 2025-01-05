@@ -1,15 +1,11 @@
 import { confirm, isCancel, log, spinner, text } from "@clack/prompts";
-import { getFolders, isRepoRoot, resolve } from "../lib/helpers/files";
+import { getFolders, isRepoRoot, resolve } from "../helpers/files";
 import { $ } from "bun";
-import {
-  createRepo,
-  gitInit,
-  isRepoEmpty,
-} from "../lib/helpers/git";
-import { task } from "../lib/helpers/clack";
-import { DEV_FOLDER, GITHUB_USER } from "../lib/constants";
-import { github } from "../github";
-import { isoToPretty } from "../lib/helpers/time";
+import { createRepo, gitInit, isRepoEmpty } from "../helpers/git";
+import { CancelError, task } from "../helpers/clack";
+import { DEV_FOLDER, GITHUB_USER } from "../constants";
+import { github } from "../fetchers/github";
+import { isoToPretty } from "../helpers/time";
 
 export const uploadRepo = async () => {
   const folders = await getFolders(DEV_FOLDER);
@@ -23,7 +19,7 @@ export const uploadRepo = async () => {
     },
   });
 
-  if (isCancel(repoName)) throw "Cancelled";
+  if (isCancel(repoName)) throw new CancelError();
 
   const repoPath = resolve(DEV_FOLDER + repoName);
 
@@ -33,7 +29,7 @@ export const uploadRepo = async () => {
       active: "Initialize",
       inactive: "Cancel",
     });
-    if (isCancel(init) || !init) throw "Cancelled";
+    if (isCancel(init) || !init) throw new CancelError();
 
     if (await gitInit(repoPath)) {
       log.success("Repository initialized!");
@@ -56,7 +52,7 @@ export const uploadRepo = async () => {
       initialValue: true,
     });
 
-    if (isCancel(publicRepo)) throw "Cancelled";
+    if (isCancel(publicRepo)) throw new CancelError();
 
     await task(
       "Creating repository",
@@ -109,7 +105,7 @@ export const uploadRepo = async () => {
     message: "Do you want to set as remote and push?",
     inactive: "Cancel",
   });
-  if (isCancel(shouldContinue) || !shouldContinue) throw "Cancelled";
+  if (isCancel(shouldContinue) || !shouldContinue) throw new CancelError();
 
   await task(
     "Adding remote",

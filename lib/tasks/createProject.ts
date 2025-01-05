@@ -1,12 +1,12 @@
 import { $ } from "bun";
 import { readdir } from "node:fs/promises";
 import { confirm, isCancel, log, text } from "@clack/prompts";
-import { github } from "../github";
-import { fileExists } from "../lib/helpers/files";
-import { task } from "../lib/helpers/clack";
-import { cloneRepo } from "../lib/helpers/git";
-import { openVSCode } from "../lib/helpers/commands";
-import { createRepo } from "../lib/helpers/git";
+import { github } from "../fetchers/github";
+import { fileExists } from "../helpers/files";
+import { CancelError, task } from "../helpers/clack";
+import { cloneRepo } from "../helpers/git";
+import { openVSCode } from "../helpers/commands";
+import { createRepo } from "../helpers/git";
 import { initializeRepo } from "./initializeRepo";
 
 export const createProject = async (repoName?: string) => {
@@ -29,7 +29,7 @@ export const createProject = async (repoName?: string) => {
       },
     });
 
-    if (isCancel(name)) throw "Cancelled";
+    if (isCancel(name)) throw new CancelError();
 
     repo = name;
   }
@@ -41,7 +41,7 @@ export const createProject = async (repoName?: string) => {
     initialValue: true,
   });
 
-  if (isCancel(publicRepo)) throw "Cancelled";
+  if (isCancel(publicRepo)) throw new CancelError();
 
   await task(
     "Creating repository",
@@ -65,5 +65,4 @@ export const createProject = async (repoName?: string) => {
     "Repository opened",
     () => openVSCode(repo),
   );
-  
 };

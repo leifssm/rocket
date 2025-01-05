@@ -1,14 +1,24 @@
 import { log } from "@clack/prompts";
 import { ShellError } from "bun";
+import { withContext } from "./strings";
 
 // Workaround as bun does not expose ShellError
-export const isShellError = (error: unknown): error is ShellError => error?.constructor?.name === "ShellError";
+export const isShellError = (value: unknown): value is ShellError =>
+  value?.constructor?.name === "ShellError";
+
+export const isError = <E extends Error = Error>(
+  value: unknown,
+  errorType?: E,
+): value is Error => value?.constructor === (errorType ?? Error);
 
 export const parseError = (error: unknown): string => {
   if (typeof error === "string") return error;
+  if (isError(error)) {
+    return withContext(error.name, error.message);
+  }
   if (isShellError(error)) {
-    return error.stderr.toString("utf-8")
+    return error.stderr.toString("utf-8");
   }
   log.warn(`Unknown error type ${error}`);
   return error + "";
-}
+};

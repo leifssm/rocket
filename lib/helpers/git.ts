@@ -4,7 +4,6 @@ import { log } from "@clack/prompts";
 
 export const mainFolder = "~/dev/"; 
 
-
 export const isRepoEmpty = async (name: string) => {
   try {
     const out = await $`gh repo view ${name} --json isEmpty`.quiet();
@@ -15,14 +14,14 @@ export const isRepoEmpty = async (name: string) => {
 }
 
 export const createRepo = async (name: string, publicRepo = true) => {
-  if (!name) throw 'Name is required';
+  if (!name) throw new Error('Name is required');
 
   const flag = publicRepo ? '--public' : '--private';
   const { exitCode } = await $`gh repo create ${name} ${flag}`
     .nothrow()
     .quiet();
 
-  if (exitCode !== 0) throw`Failed to create repository '${name}'`;  
+  if (exitCode !== 0) throw new Error(`Failed to create repository '${name}'`);  
 }
 
 export const cloneRepo = async (repo: string) => {

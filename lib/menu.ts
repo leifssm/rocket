@@ -1,5 +1,9 @@
-import { log, note, select, text } from "@clack/prompts";
-import { parseError } from "./helpers/errors";
+import { isCancel, log, note, select, text } from "@clack/prompts";
+import type { PromiseOrNot } from "./helpers/types";
+import { CancelError } from "./helpers/clack";
+
+export class MenuError extends Error {}
+export type Task = () => PromiseOrNot<Navigation | void>;
 
 export type MenuOption =
   & {
@@ -8,15 +12,29 @@ export type MenuOption =
   }
   & (
     {
-      task: () => void | Promise<void>;
+      task: Task;
     } | {
       options: MenuOption[];
     }
   );
 
-export const runMenu = async (menu: MenuOption) => {
+export enum Navigation {
+  BACK,
+}
+
+export const runMenu = async (
+  menu: MenuOption,
+  menuHistory: MenuOption[] = [],
+) => {
   if ("task" in menu) {
-    await menu.task();
+    const result = await menu.task();
+    switch (result) {
+      case Navigation.BACK: {
+        const previous = menuHistory.pop();
+        if (!previous) throw new MenuError("No previous menus");
+        await runMenu(previous);
+      }
+    }
     return;
   }
 
@@ -29,7 +47,7 @@ export const runMenu = async (menu: MenuOption) => {
     })),
   });
 
-  if (typeof selectedIndex === "symbol") throw "Cancelled";
+  if (isCancel(selectedIndex)) throw new CancelError();
 
   await runMenu(menu.options[selectedIndex]);
 };

@@ -1,4 +1,11 @@
 import { spinner } from '@clack/prompts';
+import { withContext } from './strings';
+
+export class CancelError extends Error {
+  constructor (reason?: string) {
+    super(withContext('Cancelled', reason))
+  }
+}
 
 const loader = spinner();
 

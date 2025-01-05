@@ -18,16 +18,16 @@ import {
   updateSettings,
 } from "@clack/prompts";
 import { type MenuOption, runMenu } from "./lib/menu";
-import { createProject } from "./tasks/createProject";
-import { uploadRepo } from "./tasks/uploadRepo";
+import { createProject } from "./lib/tasks/createProject";
+import { uploadRepo } from "./lib/tasks/uploadRepo";
 import { DEV_FOLDER, GITHUB_USER } from "./lib/constants";
-import { github } from "./github";
+import { github } from "./lib/fetchers/github";
 import { sleep } from "bun";
 import { isRepoEmpty } from "./lib/helpers/git";
 import { parseError } from "./lib/helpers/errors";
 
-if (!GITHUB_USER) throw "Please define your github account in lib/constants.ts" 
-if (!DEV_FOLDER) throw "Please define your dev folder in lib/constants.ts" 
+if (!GITHUB_USER) throw "Please define your github account in lib/constants.ts";
+if (!DEV_FOLDER) throw "Please define your dev folder in lib/constants.ts";
 
 intro(`✶ Rocket 🚀 ✶`);
 
