@@ -20,7 +20,7 @@ export const uploadRepo = async () => {
     })),
   });
 
-  if (isCancel(repoName)) throw new CancelError();
+  if (isCancel(repoName)) return Navigation.BACK;
 
   const repoPath = resolve(DEV_FOLDER + repoName);
 

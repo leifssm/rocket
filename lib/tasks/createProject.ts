@@ -24,7 +24,7 @@ export const createProject = async (repoName?: string) => {
       },
     });
 
-    if (isCancel(name)) throw new CancelError();
+    if (isCancel(name)) return Navigation.BACK;
 
     repo = name;
   }

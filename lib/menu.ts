@@ -42,6 +42,7 @@ export const runMenu = async (
     }
     throw new MenuError(`Task finished with unknown value: ${result}`);
   }
+  menuHistory.push(menu);
 
   const selectedIndex = await select({
     message: menu.label,
@@ -54,5 +55,5 @@ export const runMenu = async (
 
   if (isCancel(selectedIndex)) throw new CancelError();
 
-  await runMenu(menu.options[selectedIndex]);
+  await runMenu(menu.options[selectedIndex], menuHistory);
 };
