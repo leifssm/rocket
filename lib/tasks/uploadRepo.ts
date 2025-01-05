@@ -1,8 +1,7 @@
 import { confirm, isCancel, log, spinner, text } from "@clack/prompts";
 import { getFolders, isRepoRoot, resolve } from "../helpers/files";
-import { $ } from "bun";
-import { createRepo, gitInit, isRepoEmpty } from "../helpers/git";
-import { CancelError, task } from "../helpers/clack";
+import { gitInit, isRepoEmpty } from "../helpers/git";
+import { CancelError } from "../helpers/clack";
 import { DEV_FOLDER, GITHUB_USER } from "../constants";
 import { github } from "../fetchers/github";
 import { isoToPretty } from "../helpers/time";

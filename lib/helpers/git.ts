@@ -1,6 +1,4 @@
 import { $ } from "bun"
-import { fileExists, resolve } from "./files";
-import { log } from "@clack/prompts";
 
 export const mainFolder = "~/dev/"; 
 

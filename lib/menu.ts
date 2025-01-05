@@ -1,4 +1,4 @@
-import { isCancel, log, note, select, text } from "@clack/prompts";
+import { isCancel, select } from "@clack/prompts";
 import type { PromiseOrNot } from "./helpers/types";
 import { CancelError } from "./helpers/clack";
 

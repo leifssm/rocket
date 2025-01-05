@@ -1,29 +1,12 @@
 import {
   cancel,
-  confirm,
-  group,
-  groupMultiselect,
   intro,
-  isCancel,
-  log,
-  multiselect,
-  note,
   outro,
-  password,
-  select,
-  selectKey,
-  spinner,
-  tasks,
-  text,
-  updateSettings,
 } from "@clack/prompts";
 import { type MenuOption, runMenu } from "./lib/menu";
 import { createProject } from "./lib/tasks/createProject";
 import { uploadRepo } from "./lib/tasks/uploadRepo";
 import { DEV_FOLDER, GITHUB_USER } from "./lib/constants";
-import { github } from "./lib/fetchers/github";
-import { sleep } from "bun";
-import { isRepoEmpty } from "./lib/helpers/git";
 import { parseError } from "./lib/helpers/errors";
 
 if (!GITHUB_USER) throw "Please define your github account in lib/constants.ts";

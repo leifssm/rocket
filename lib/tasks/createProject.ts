@@ -1,13 +1,6 @@
-import { $ } from "bun";
-import { readdir } from "node:fs/promises";
-import { confirm, isCancel, log, text } from "@clack/prompts";
+import { confirm, isCancel, text } from "@clack/prompts";
 import { github } from "../fetchers/github";
-import { fileExists } from "../helpers/files";
-import { CancelError, task } from "../helpers/clack";
-import { cloneRepo } from "../helpers/git";
-import { openVSCode } from "../helpers/commands";
-import { createRepo } from "../helpers/git";
-import { initializeRepo } from "./initializeRepo";
+import { CancelError } from "../helpers/clack";
 import { Navigation } from "../menu";
 import { taskCloneRepo, taskCreateRepo, taskOpenVSCode } from "./minor";
 

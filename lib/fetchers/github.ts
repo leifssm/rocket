@@ -1,7 +1,4 @@
-import { $ } from "bun";
 import { Cache } from "../cache";
-import { log } from "@clack/prompts";
-import { task } from "../helpers/clack";
 import { taskFetchRepos } from "../tasks/minor";
 
 export interface Repo {
