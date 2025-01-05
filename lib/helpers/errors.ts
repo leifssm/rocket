@@ -6,10 +6,8 @@ import { withContext } from "./strings";
 export const isShellError = (value: unknown): value is ShellError =>
   value?.constructor?.name === "ShellError";
 
-export const isError = <E extends Error = Error>(
-  value: unknown,
-  errorType?: E,
-): value is Error => value?.constructor === (errorType ?? Error);
+export const isError = (value: unknown): value is Error =>
+  value instanceof Error;
 
 export const parseError = (error: unknown): string => {
   if (typeof error === "string") return error;

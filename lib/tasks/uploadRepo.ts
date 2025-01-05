@@ -1,23 +1,23 @@
-import { confirm, isCancel, log, spinner, text } from "@clack/prompts";
-import { getFolders, isRepoRoot, resolve } from "../helpers/files";
+import { confirm, isCancel, log, select, spinner, text } from "@clack/prompts";
+import { getSubfolders, isRepoRoot, resolve } from "../helpers/files";
 import { gitInit, isRepoEmpty } from "../helpers/git";
 import { CancelError } from "../helpers/clack";
 import { DEV_FOLDER, GITHUB_USER } from "../constants";
 import { github } from "../fetchers/github";
-import { isoToPretty } from "../helpers/time";
+import { prettifyDate } from "../helpers/time";
 import { taskAddRemote, taskCreateRepo, taskPush, taskPushAll } from "./minor";
 import { Navigation } from "../menu";
 
 export const uploadRepo = async () => {
-  const folders = await getFolders(DEV_FOLDER);
+  const folders = await getSubfolders(DEV_FOLDER);
+  folders.sort((a, b) => b.changed.getTime() - a.changed.getTime());
 
-  const repoName = await text({
-    message: `Enter the name of a folder in ${DEV_FOLDER}`,
-    placeholder: `from ${DEV_FOLDER}`,
-    validate(value) {
-      if (value.length === 0) return `Name is required`;
-      if (!folders.includes(value)) return `Folder does not exist`;
-    },
+  const repoName = await select({
+    message: `Select a folder from ${DEV_FOLDER}`,
+    options: folders.map((folder) => ({
+      value: folder.name,
+      hint: prettifyDate(folder.changed),
+    })),
   });
 
   if (isCancel(repoName)) throw new CancelError();
@@ -56,12 +56,16 @@ export const uploadRepo = async () => {
     if (isCancel(isPublic)) throw new CancelError();
 
     await taskCreateRepo(repoName, isPublic);
-    await taskAddRemote(repoPath, `git@github.com:${GITHUB_USER}/${repoName}.git`);
-    await taskPush(repoPath)
+    github.invalidate("repos");
+    await taskAddRemote(
+      repoPath,
+      `git@github.com:${GITHUB_USER}/${repoName}.git`,
+    );
+    await taskPush(repoPath);
     return Navigation.COMPLETE;
   }
 
-  const date = isoToPretty(existingRepo.createdAt);
+  const date = prettifyDate(existingRepo.createdAt);
   const loading = spinner();
   loading.start(
     `An existing repo with the name of '${repoName}' (${date}) already exists, checking if it is empty`,
@@ -75,7 +79,10 @@ export const uploadRepo = async () => {
       inactive: "Cancel",
     });
     if (setRemote) {
-      await taskAddRemote(repoPath, `git@github.com:${GITHUB_USER}/${repoName}.git`);
+      await taskAddRemote(
+        repoPath,
+        `git@github.com:${GITHUB_USER}/${repoName}.git`,
+      );
     }
     log.info("Stopped to not override remote");
     return Navigation.COMPLETE;
@@ -87,7 +94,10 @@ export const uploadRepo = async () => {
   });
   if (isCancel(shouldContinue) || !shouldContinue) throw new CancelError();
 
-  await taskAddRemote(repoPath, `git@github.com:${GITHUB_USER}/${repoName}.git`);
+  await taskAddRemote(
+    repoPath,
+    `git@github.com:${GITHUB_USER}/${repoName}.git`,
+  );
 
   const commitText = await text({
     message: "Enter commit message",
@@ -101,5 +111,5 @@ export const uploadRepo = async () => {
 
   await taskPushAll(repoPath, commitText);
 
-  return Navigation.COMPLETE
+  return Navigation.COMPLETE;
 };
