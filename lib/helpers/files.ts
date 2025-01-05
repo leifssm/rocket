@@ -1,6 +1,10 @@
-import { readdir } from 'node:fs/promises';
+import { readdir } from "node:fs/promises";
 
-export const resolve = (path: string) => path.replace(/^~/, 'C:/Users/leif');
+export const resolve = (path: string) => (
+  path
+    .replace(/\/$/, "")
+    .replace(/^~/, Bun.env.HOME!)
+);
 
 export const fileExists = async (path: string) => {
   try {
@@ -11,10 +15,10 @@ export const fileExists = async (path: string) => {
   }
 };
 
-export const isRepoRoot = async (path: string) => {
-  return await fileExists(`${path}/.git`);
-}
-
 export const getFolders = async (path: string) => {
   return await readdir(resolve(path));
+};
+
+export const isRepoRoot = async (path: string) => {
+  return await fileExists(`${path}/.git`);
 }

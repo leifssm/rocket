@@ -1,6 +1,7 @@
 import { $ } from "bun";
 import { Cache } from "./lib/cache";
 import { log } from "@clack/prompts";
+import { task } from "./lib/helpers/clack";
 
 export interface Repo {
   name: string;
@@ -10,7 +11,11 @@ export interface Repo {
 
 export const github = new Cache()
   .store('repos', async () => {
-    const response = await $`gh repo list --json name --json description --json createdAt`.quiet();
+    const response = await task(
+      "Fetching repositories",
+      "Fetched repositories",
+      () => $`gh repo list --json name --json description --json createdAt`.quiet(),
+    );
     return response.json() as Repo[];
   });
 

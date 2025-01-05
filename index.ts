@@ -1,62 +1,55 @@
 import {
-  intro,
-  outro,
-  text,
-  log,
-  tasks,
-  group,
-  select,
-  multiselect,
-  confirm,
   cancel,
-  isCancel,
+  confirm,
+  group,
   groupMultiselect,
-  selectKey,
+  intro,
+  isCancel,
+  log,
+  multiselect,
   note,
+  outro,
   password,
+  select,
+  selectKey,
   spinner,
+  tasks,
+  text,
   updateSettings,
-} from '@clack/prompts';
-import { $, sleep } from 'bun';
-import { github } from './github';
-import { runMenu } from './lib/menu';
-import { createRepo } from './tasks/createRepo';
-import { uploadRepo } from './tasks/uploadRepo';
-import { getFolders } from './lib/helpers/files';
+} from "@clack/prompts";
+import { type MenuOption, runMenu } from "./lib/menu";
+import { createProject } from "./tasks/createProject";
+import { uploadRepo } from "./tasks/uploadRepo";
+import { DEV_FOLDER, GITHUB_USER } from "./lib/constants";
+import { github } from "./github";
+import { sleep } from "bun";
+import { isRepoEmpty } from "./lib/helpers/git";
+import { parseError } from "./lib/helpers/errors";
 
-intro(` ✶ Rocket 🚀 ✶`);
-log.info((await getFolders('~/dev')).join(', '));
+if (!GITHUB_USER) throw "Please define your github account in lib/constants.ts" 
+if (!DEV_FOLDER) throw "Please define your dev folder in lib/constants.ts" 
 
-await runMenu({
-  label: 'Select an option',
+intro(`✶ Rocket 🚀 ✶`);
+
+const menu: MenuOption = {
+  label: "Select an option",
   options: [
     {
-      label: 'Create repo',
-      hint: 'Create a new repository',
-      protocol: createRepo,
+      label: "Create repo",
+      hint: "Create a new repository",
+      task: createProject,
     },
     {
-      label: 'Upload repo',
-      hint: 'Uploads an existing repository',
-      protocol: uploadRepo,
+      label: "Upload repo",
+      hint: "Uploads an existing repository",
+      task: uploadRepo,
     },
   ],
-});
+};
 
-// const p = await password({
-//   message: 'Enter your password',
-// })
-
-// Do stuff
-// const meaning = await text({
-//   message: 'What is the meaning of life?',
-//   placeholder: 'Not sure',
-//   initialValue: '42',
-//   validate(value) {
-//     if (value.length === 0) return `Value is required!`;
-//   },
-// });
-
-// const
-
-outro(`Blastoff!`);
+try {
+  await runMenu(menu);
+  outro(`Blastoff!`);
+} catch (e) {
+  cancel(parseError(e));
+}
