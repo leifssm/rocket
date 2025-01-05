@@ -8,6 +8,8 @@ import { cloneRepo } from "../helpers/git";
 import { openVSCode } from "../helpers/commands";
 import { createRepo } from "../helpers/git";
 import { initializeRepo } from "./initializeRepo";
+import { Navigation } from "../menu";
+import { taskCloneRepo, taskCreateRepo, taskOpenVSCode } from "./minor";
 
 export const createProject = async (repoName?: string) => {
   let repo = repoName;
@@ -34,22 +36,18 @@ export const createProject = async (repoName?: string) => {
     repo = name;
   }
 
-  const publicRepo = await confirm({
+  const isPublic = await confirm({
     message: "Make the repository public?",
     active: "Public",
     inactive: "Private",
     initialValue: true,
   });
 
-  if (isCancel(publicRepo)) throw new CancelError();
+  if (isCancel(isPublic)) throw new CancelError();
 
-  await task(
-    "Creating repository",
-    "Repository created",
-    () => createRepo(repo, publicRepo),
-  );
+  await taskCreateRepo(repo, isPublic);
 
-  await task("Cloning repository", "Repository cloned", () => cloneRepo(repo));
+  await taskCloneRepo(repo)
 
   // const initialize = await confirm({
   //   message: "Do you want to initialize the repo?",
@@ -60,9 +58,7 @@ export const createProject = async (repoName?: string) => {
   //   await initializeRepo(repo);
   // }
 
-  await task(
-    "Opening repository",
-    "Repository opened",
-    () => openVSCode(repo),
-  );
+  await taskOpenVSCode(repo);
+
+  return Navigation.COMPLETE
 };

@@ -3,7 +3,7 @@ import type { PromiseOrNot } from "./helpers/types";
 import { CancelError } from "./helpers/clack";
 
 export class MenuError extends Error {}
-export type Task = () => PromiseOrNot<Navigation | void>;
+export type Task = () => PromiseOrNot<Navigation>;
 
 export type MenuOption =
   & {
@@ -20,6 +20,7 @@ export type MenuOption =
 
 export enum Navigation {
   BACK,
+  COMPLETE,
 }
 
 export const runMenu = async (
@@ -29,13 +30,17 @@ export const runMenu = async (
   if ("task" in menu) {
     const result = await menu.task();
     switch (result) {
-      case Navigation.BACK: {
+      case Navigation.COMPLETE:
+        return;
+      case Navigation.BACK:
         const previous = menuHistory.pop();
         if (!previous) throw new MenuError("No previous menus");
         await runMenu(previous);
-      }
+        return;
+      case undefined:
+        throw new MenuError("Task finished without additional info");
     }
-    return;
+    throw new MenuError(`Task finished with unknown value: ${result}`);
   }
 
   const selectedIndex = await select({

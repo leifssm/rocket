@@ -6,6 +6,8 @@ import { CancelError, task } from "../helpers/clack";
 import { DEV_FOLDER, GITHUB_USER } from "../constants";
 import { github } from "../fetchers/github";
 import { isoToPretty } from "../helpers/time";
+import { taskAddRemote, taskCreateRepo, taskPush, taskPushAll } from "./minor";
+import { Navigation } from "../menu";
 
 export const uploadRepo = async () => {
   const folders = await getFolders(DEV_FOLDER);
@@ -34,7 +36,7 @@ export const uploadRepo = async () => {
     if (await gitInit(repoPath)) {
       log.success("Repository initialized!");
     } else {
-      throw "Failed to initialize repository";
+      throw new Error("Failed to initialize repository");
     }
   } else {
     log.success("Repository folder found!");
@@ -45,36 +47,19 @@ export const uploadRepo = async () => {
   const existingRepo = repos.find((repo) => repo.name === repoName);
 
   if (!existingRepo) {
-    const publicRepo = await confirm({
+    const isPublic = await confirm({
       message: "Make the repository public?",
       active: "Public",
       inactive: "Private",
       initialValue: true,
     });
 
-    if (isCancel(publicRepo)) throw new CancelError();
+    if (isCancel(isPublic)) throw new CancelError();
 
-    await task(
-      "Creating repository",
-      "Repository created",
-      () => createRepo(repoName, publicRepo),
-    );
-    await task(
-      "Adding remote",
-      "Added remote",
-      () =>
-        $`
-          git -C ${repoPath} remote add origin git@github.com:${GITHUB_USER}/${repoName}.git
-          git branch -M main
-        `
-          .quiet(),
-    );
-    await task(
-      "Pushing to remote",
-      "Successfully pushed to remote",
-      () => $`git -C ${repoPath} push -u origin main`.quiet(),
-    );
-    return;
+    await taskCreateRepo(repoName, isPublic);
+    await taskAddRemote(repoPath, `git@github.com:${GITHUB_USER}/${repoName}.git`);
+    await taskPush(repoPath)
+    return Navigation.COMPLETE;
   }
 
   const date = isoToPretty(existingRepo.createdAt);
@@ -91,14 +76,10 @@ export const uploadRepo = async () => {
       inactive: "Cancel",
     });
     if (setRemote) {
-      await $`
-        git -C ${repoPath} remote add origin git@github.com:${GITHUB_USER}/${repoName}.git
-        git branch -M main
-      `.quiet();
-      log.success("Remote added");
+      await taskAddRemote(repoPath, `git@github.com:${GITHUB_USER}/${repoName}.git`);
     }
     log.info("Stopped to not override remote");
-    return;
+    return Navigation.COMPLETE;
   }
   loading.stop(`Repo '${repoName}' (${date}) is empty`);
   const shouldContinue = await confirm({
@@ -107,16 +88,7 @@ export const uploadRepo = async () => {
   });
   if (isCancel(shouldContinue) || !shouldContinue) throw new CancelError();
 
-  await task(
-    "Adding remote",
-    "Added remote",
-    () =>
-      $`
-        git -C ${repoPath} remote add origin git@github.com:${GITHUB_USER}/${repoName}.git
-        git branch -M main
-      `
-        .quiet(),
-  );
+  await taskAddRemote(repoPath, `git@github.com:${GITHUB_USER}/${repoName}.git`);
 
   const commitText = await text({
     message: "Enter commit message",
@@ -126,16 +98,9 @@ export const uploadRepo = async () => {
       if (value.length === 0) return `Message is required`;
     },
   });
-  if (isCancel(commitText)) throw "Commit cancelled";
+  if (isCancel(commitText)) throw new CancelError("Commit cancelled");
 
-  await task(
-    "Pushing to remote",
-    "Successfully pushed to remote",
-    () =>
-      $`
-      git -C ${repoPath} add --all
-      git -C ${repoPath} commit -m "${commitText}"
-      git -C ${repoPath} push -u origin main
-    `.quiet(),
-  );
+  await taskPushAll(repoPath, commitText);
+
+  return Navigation.COMPLETE
 };
