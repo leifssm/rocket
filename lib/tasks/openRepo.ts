@@ -11,6 +11,7 @@ export const openRepo = async () => {
 
   const repoName = await select({
     message: `Select a folder from ${DEV_FOLDER}`,
+    maxItems: 10,
     options: folders.map((folder) => ({
       value: folder.name,
       hint: prettifyDate(folder.changed),
