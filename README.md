@@ -1,15 +1,69 @@
-# rocket
 
-To install dependencies:
+# Rocket
+
+A wrapper CLI for Git and [GitHub CLI](https://cli.github.com/). Uses [Bun](https://bun.sh/) to compile to an `.exe` that can be run from the terminal and adds shorthand commands for ease of use. Currently supported commands are:
+- Open local repo
+- Create new repo both locally and on GitHub
+- Upload existing repo to GitHub
+## Run Locally
+
+Make sure you have [GitHub CLI](https://cli.github.com/) installed by running
 
 ```bash
-bun install
+  gh
 ```
 
-To run:
+Clone the project
 
 ```bash
-bun run index.ts
+  git clone git@github.com:leifssm/rocket.git
 ```
 
-This project was created using `bun init` in bun v1.1.42. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Go to the project directory
+
+```bash
+  cd rocket
+```
+
+Install dependencies
+
+```bash
+  bun install
+```
+
+Edit the `./lib/constants.ts` file to include your dev folder and you GitHub username
+
+```js
+export const DEV_FOLDER = "~/dev/";
+export const GITHUB_USER = "YOUR_GITHUB_USERNAME";
+```
+
+### Developing
+
+Run the program by running
+
+```bash
+  bun run dev
+```
+
+Or, compile it to an .exe: 
+
+### Building
+
+Either build it to `./build/rocket.exe`
+
+```bash
+  bun run build:test
+```
+
+Or, build it to `~/dev/executables/rocket.exe`
+
+```bash
+  bun run build:global
+```
+
+Add the `.exe`'s parent folder to PATH and run it with
+
+```bash
+  rocket
+```

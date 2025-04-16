@@ -45,10 +45,10 @@ export const taskPushAll = async (repoPath: string, commitText: string) => (
     "Successfully pushed to remote",
     () =>
       $`
-      git -C ${repoPath} add --all
-      git -C ${repoPath} commit -m "${commitText}"
-      git -C ${repoPath} push -u origin main
-    `.quiet(),
+        git -C ${repoPath} add --all
+        git -C ${repoPath} commit -m "${commitText}"
+        git -C ${repoPath} push -u origin main
+      `.quiet(),
   )
 )
 

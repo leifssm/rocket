@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun --bun --watch run ./index.ts",
-    "build": "bun build ./index.ts --compile --outfile ~/dev/executables/rocket"
+    "build:test": "bun build ./index.ts --compile --outfile ./build/rocket",
+    "build:global": "bun build ./index.ts --compile --outfile ~/dev/executables/rocket"
   },
   "devDependencies": {
     "@types/bun": "latest"
