@@ -5,6 +5,7 @@ A wrapper CLI for Git and [GitHub CLI](https://cli.github.com/). Uses [Bun](http
 - Open local repo
 - Create new repo both locally and on GitHub
 - Upload existing repo to GitHub
+
 ## Run Locally
 
 Make sure you have [GitHub CLI](https://cli.github.com/) installed by running
@@ -67,3 +68,8 @@ Add the `.exe`'s parent folder to PATH and run it with
 ```bash
   rocket
 ```
+
+## Screenshots
+
+![Creating a repo with existing name](https://github.com/user-attachments/assets/a479af09-dba6-4e67-a997-f472f2f051a0)
+![Creating a repo](https://github.com/user-attachments/assets/758f1b0a-5612-462a-8c9f-113507000747)
